@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Austin's Gender Dungeon</title>
+	<title>Austin's Dungeon</title>
 	<script src="jQuery.txt"></script>
 	<meta charset="utf-8"/>
 	<link rel="stylesheet" type="text/css" href="style.css">
@@ -39,7 +39,7 @@ var player =
 	width: 40, height: 40,
 
 	name: "Jessie",
-	hitpoints: 10, attack: 10, speed: 10, light:100, hunger:150,
+	hitpoints: 10, attack: 10, speed: 10,
 
 	//Movement stuff (-20 to center)
 	x: roomW/2 - 20,
@@ -49,96 +49,28 @@ var player =
 	movingSouth: false,
 	movingEast: false,
 	movingWest: false,
-	//checks on player
-	checkOnPlayer: function()
-	{
-		var deathCount = 0;
-		if (player.hitpoints < 1)
-		{
-			while(player.hitpoints < 1)
-			{
-				var randomCheck = Math.random();
-				if (randomCheck < 1/2)
-				{
-					player.speed = player.speed - 1;
-				}
-				else
-				{
-					player.attack = player.attack - 1;
-				}
-				player.hitpoints = player.hitpoints + 1;
-			}
-			deathCount = deathCount + 3;
-		}
-		if (player.speed < 0)
-		{
-			//immobile
-			deathCount = deathCount + 1;
-		}
-		if (player.attack < 0)
-		{
-			//playerCripple
-			deathCount = deathCount + 1;
-		}
-		if (deathCount > 4)
-		{
-			//playerdeath
-		}
-	},
-	lightCheck: function()
-	{
-		if (player.light < 1)
-		{
-			//-1 hp every second!
-		}
-	},
-	foodCheck: function()
-	{
-		if (player.hunger > 150)
-		{
-			//lowers speed overall(not the stat)! ate too much!
-		}
-		else if (player.hunger == 125)
-		{
-			// "I could use a light snack."
-		}
-		else if (player.hunger == 100)
-		{
-			// "An appitizer would be nice."
-		}
-		else if (player.hunger == 75)
-		{
-			// "I think that rumbling is my stomach."
-		}
-		else if (player.hunger == 50)
-		{
-			// "I am starving!"
-		}
-		else if (player.hunger < 50)
-		{
-			//your maximum for a speed/attack is normal if hunger > 50, otherwise it is
-			//equal to hunger / 5 but does not cause you to lose the stat value.
-			//for example, Alex has 34 hunger left but a 9 stat for speed. His speed
-			//is not lowered to 6, but his movment is the same as if it was 6.
-			//aka he would move as fast as Alexa with a speed of 6 and any hunger value >= 30.
-			if (player.hunger < 10)
-			{
-				//the only exeption to this rule is health, once your hunger reaches below 10
-				//one loses a health every 5 seconds!
-			}
-		}
-	},
 
 	//moves players x/y
 	draw: function()
 	{
-		//TODO: fix diagonal fast moving bug
-		var dx = 1.5; var dy = 1.5;
 
-		if (player.movingNorth) player.y -= dy;
-		if (player.movingEast) player.x += dx;
-		if (player.movingSouth) player.y += dy;
-		if (player.movingWest) player.x -= dx;
+		var speed = 1.5; //pixels per tick
+
+		var dx = 0; var dy = 0;
+
+		if (player.movingNorth) dy--;
+		if (player.movingEast) dx++;
+		if (player.movingSouth) dy++;
+		if (player.movingWest) dx--;
+
+		//if moving diagonally
+		if (dy * dx != 0)
+		{
+			speed *= Math.sqrt(0.5); //slow down the x and y speed
+		}
+
+		player.x += dx * speed;
+		player.y += dy * speed;
 
 		var roomDoors = world[roomX][roomY].doors;
 		if( player.y < 0 ) //top wall
@@ -210,10 +142,10 @@ function Door(x, y)
 	}
 }
 
-function newNorthDoor()
+function newNorthDoor(x)
 {
-	var door = new Door(roomW/2, 0);
-	door.x -= door.width/2;
+	var door = new Door(x, 0);
+	//door.x -= door.width/2;
 	door.height = 10;
 	door.inDoor = function()
 	{
@@ -229,9 +161,9 @@ function newNorthDoor()
 	return door;
 }
 
-function newSouthDoor()
+function newSouthDoor(x)
 {
-	var door = newNorthDoor();
+	var door = newNorthDoor(x);
 	door.y = roomH - door.height;
 	door.goThru = function()
 	{
@@ -242,9 +174,9 @@ function newSouthDoor()
 	return door;
 }
 
-function newEastDoor()
+function newEastDoor(y)
 {
-	var door = newWestDoor();
+	var door = newWestDoor(y);
 	door.x = roomW - door.width;
 	door.goThru = function()
 	{
@@ -255,10 +187,10 @@ function newEastDoor()
 	return door;
 }
 
-function newWestDoor()
+function newWestDoor(y)
 {
-	var door = new Door(0, roomH/2);
-	door.y -= door.height/2;
+	var door = new Door(0, y);
+	//door.y -= door.height/2;
 	door.width = 10;
 	door.inDoor = function()
 	{
@@ -294,6 +226,9 @@ function Room()
 			}
 		}
 	}
+
+
+
 	//TODO: move generateRoom() in here
 }
 
@@ -312,10 +247,10 @@ var roomX = Math.floor(maxX/2);
 var roomY = Math.floor(maxY/2);
 
 var start = world[roomX][roomY] = new Room();
-start.doors.north = newNorthDoor();
-start.doors.east = newEastDoor();
-start.doors.south = newSouthDoor();
-start.doors.west = newWestDoor();
+start.doors.north = newNorthDoor(roomW/2 - 50);
+start.doors.east = newEastDoor(roomH/2 - 50);
+start.doors.south = newSouthDoor(roomW/2 - 50);
+start.doors.west = newWestDoor(roomH/2 - 50);
 
 //generates a room by checking doors of adjacent rooms.
 function generateRoom(x, y)
@@ -334,33 +269,53 @@ function generateRoom(x, y)
 	if (y > 0) //if room above exists
 	{
 		var roomAbove = world[x][y-1];
-		if ( roomAbove != null ? roomAbove.doors.south != null : randDoor() )
-			newDoors.north = newNorthDoor();
+		if ( roomAbove != null ) //room above exists already
+		{
+			if (roomAbove.doors.south != null)
+				newDoors.north = newNorthDoor(roomAbove.doors.south.x);
+		}
+		else if (randDoor())
+		{
+			newDoors.north = newNorthDoor(Math.random() * (roomW - 100)); //TODO: scalable
+		}
 	}
 
 	//east
 	if (x < maxX - 1) //if room right exists
 	{
 		var roomRight = world[x+1][y];
-		if ( roomRight != null ? roomRight.doors.west != null : randDoor() )
-			newDoors.east = newEastDoor();
+		if ( roomRight != null )
+		{
+			if (roomRight.doors.west != null)
+				newDoors.east = newEastDoor(roomRight.doors.west.y);
+		}
+		else if ( randDoor() )
+			newDoors.east = newEastDoor(Math.random() * (roomH - 100));
 	}
 
 	//south
 	if (y < maxY - 1) //if room below exists
 	{
 		var roomBelow = world[x][y+1];
-		if ( roomBelow != null ? roomBelow.doors.north != null : randDoor() )
-			newDoors.south = newSouthDoor();
+		if ( roomBelow != null ) {
+			if (roomBelow.doors.north != null)
+				newDoors.south = newSouthDoor(roomBelow.doors.north.x);
+		}
+		else if ( randDoor() )
+			newDoors.south = newSouthDoor(Math.random() * (roomW - 100));
 	}
 
 	//west
 	if (x > 0) //if room left exists
 	{
 		var roomLeft = world[x-1][y];
-		if ( roomLeft != null ? roomLeft.doors.east != null : randDoor() )
-			newDoors.west = newWestDoor();
-
+		if ( roomLeft != null )
+		{
+			if (roomLeft.doors.east != null)
+				newDoors.west = newWestDoor(roomLeft.doors.east.y);
+		}
+		else if ( randDoor() )
+			newDoors.west = newWestDoor(Math.random() * (roomH - 100));
 	}
 
 	console.log("New room generated at " + x + ", " + y);
