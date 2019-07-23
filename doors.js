@@ -20,38 +20,39 @@ winCanvas.height = roomH;
 var drawGameWin = winCanvas.getContext("2d");
 
 
-var player =
+class Player
 {
-	width: 40, height: 40,
-
-	name: "Jessie",
-	max_hitpoints: 7 + Math.floor(Math.random() * 6),
-	hitpoints: 7 + Math.floor(Math.random() * 6),
-	attack: 7 + Math.floor(Math.random() * 6),
-	speed: 7 + Math.floor(Math.random() * 6),
-	sanity: 7 + Math.floor(Math.random() * 6),
-	wisdom: 7 + Math.floor(Math.random() * 6),
-
-	//Movement stuff (-20 to center)
-	x: roomW/2 - 20,
-	y: roomH/2 - 20,
-
-	movingNorth: false,
-	movingSouth: false,
-	movingEast: false,
-	movingWest: false,
-	//moves players x/y
-	draw: function()
+	constructor(x_start, y_start, player_name)
 	{
+		this.name = player_name;
+		this.height = 40;
+		this.width = 40;
+		this.max_hitpoints = 7 + Math.floor(Math.random() * 6);
+		this.hitpoints = this.max_hitpoints;
+		this.attack = 7 + Math.floor(Math.random() * 6);
+		this.speed = 7 + Math.floor(Math.random() * 6);
+		this.sanity = 7 + Math.floor(Math.random() * 6);
+		this.wisdom = 7 + Math.floor(Math.random() * 6);
+		this.x = x_start;
+		this.y = y_start;
+	}
 
-		var speed = 1.5; //pixels per tick
+	movingNorth = false;
+	movingSouth = false;
+	movingEast = false;
+	movingWest = false;
+	//moves players x/y
+	draw()
+	{
+		var speed = 1.0 + .1 * this.speed; //pixels per tick
 
-		var dx = 0; var dy = 0;
+		var dx = 0;
+		var dy = 0;
 
-		if (player.movingNorth) dy--;
-		if (player.movingEast) dx++;
-		if (player.movingSouth) dy++;
-		if (player.movingWest) dx--;
+		if (this.movingNorth) dy--;
+		if (this.movingEast) dx++;
+		if (this.movingSouth) dy++;
+		if (this.movingWest) dx--;
 
 		//if moving diagonally
 		if (dy * dx != 0)
@@ -59,40 +60,40 @@ var player =
 			speed *= Math.sqrt(0.5); //slow down the x and y speed
 		}
 
-		player.x += dx * speed;
-		player.y += dy * speed;
+		this.x += dx * speed;
+		this.y += dy * speed;
 
 		var roomDoors = world[roomX][roomY].doors;
-		if( player.y < 0 ) //top wall
+		if( this.y < 0 ) //top wall
 		{
-			player.y = 0; //make sure player doesn't go past
+			this.y = 0; //make sure player doesn't go past
 			let nDoor = roomDoors.north;
 			if ( nDoor != null && nDoor.inDoor())
 			{
 				nDoor.goThru();
 			}
 		}
-		if( player.x + player.width > roomW ) //right wall
+		if( this.x + this.width > roomW ) //right wall
 		{
-			player.x = roomW - player.width;
+			this.x = roomW - this.width;
 			let eDoor = roomDoors.east;
 			if (eDoor != null && eDoor.inDoor())
 			{
 				eDoor.goThru();
 			}
 		}
-		if( player.y + player.height > roomH ) //bottom wall
+		if( this.y + this.height > roomH ) //bottom wall
 		{
-			player.y = roomH - player.height;
+			this.y = roomH - this.height;
 			let sDoor = roomDoors.south;
 			if (sDoor != null && sDoor.inDoor())
 			{
 				sDoor.goThru();
 			}
 		}
-		if( player.x < 0 ) //left wall
+		if( this.x < 0 ) //left wall
 		{
-			player.x = 0;
+			this.x = 0;
 			let wDoor = roomDoors.west;
 			if (wDoor != null && wDoor.inDoor())
 			{
@@ -101,11 +102,11 @@ var player =
 		}
 
 		drawGameWin.fillStyle = "red";
-		drawGameWin.fillRect(player.x, player.y, player.width, player.height);
+		drawGameWin.fillRect(this.x, this.y, this.width, this.height);
 		drawGameWin.fillStyle = "black";
 		drawGameWin.fillRect(10, 10, 200, 10);
 		drawGameWin.fillStyle = "red";
-		drawGameWin.fillRect(10, 10, player.hitpoints * 200 / player.max_hitpoints, 10);
+		drawGameWin.fillRect(10, 10, this.hitpoints * 200 / this.max_hitpoints, 10);
 		drawGameWin.font= "20px Arial";
 		drawGameWin.fillStyle = "black";
 		drawGameWin.fillText("🗡️" + player.attack, 10, 40);
@@ -320,7 +321,7 @@ function randDoor()
 	return Math.random() < 0.40;
 }
 
-
+var player = new Player(100, 100, "Austin");
 
 $("body").keydown(onDown);
 $("body").keyup(onUp);
@@ -366,6 +367,8 @@ function onUp(event)
 			break;
 	}
 }
+
+
 
 
 function updateImage()
