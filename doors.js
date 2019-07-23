@@ -108,29 +108,27 @@ var player =
 		drawGameWin.fillRect(10, 10, player.hitpoints * 200 / player.max_hitpoints, 10);
 		drawGameWin.font= "20px Arial";
 		drawGameWin.fillStyle = "black";
-		drawGameWin.fillText("Attack " + player.attack, 10, 40);
-		drawGameWin.fillText("Speed " + player.speed, 10, 65);
-		drawGameWin.fillText("Wisdom " + player.wisdom, 10, 90);
-		drawGameWin.fillText("Knowledge " + player.sanity, 10, 115);
+		drawGameWin.fillText("🗡️" + player.attack, 10, 40);
+		drawGameWin.fillText("🏃" + player.speed, 10, 65);
+		drawGameWin.fillText("📘" + player.wisdom, 10, 90);
+		drawGameWin.fillText("🤔" + player.sanity, 10, 115);
 	}
 };
 
 //doors
-function Door(x, y)
-{
-	console.log("new door at " + x + ", " + y);
-	this.x = x;
-	this.y = y;
-	this.width = 100;
-	this.height = 100;
-
-	//function inDoor()
-	//function goThru()
-
-	this.draw = function()
-	{
-		drawGameWin.fillStyle = "brown";
-		drawGameWin.fillRect(this.x, this.y, this.width, this.height);
+class Door {
+	constructor(x, y) {
+		console.log("new door at " + x + ", " + y);
+		this.x = x;
+		this.y = y;
+		this.width = 100;
+		this.height = 100;
+		//function inDoor()
+		//function goThru()
+		this.draw = function () {
+			drawGameWin.fillStyle = "brown";
+			drawGameWin.fillRect(this.x, this.y, this.width, this.height);
+		};
 	}
 }
 
@@ -148,7 +146,7 @@ function newNorthDoor(x)
 	{
 		player.y = roomH - player.height; //move to south wall
 		roomY--;
-		generateRoom(roomX, roomY);
+		enterRoom(roomX, roomY);
 	}
 	return door;
 }
@@ -161,7 +159,7 @@ function newSouthDoor(x)
 	{
 		player.y = 0; //move to north wall
 		roomY++;
-		generateRoom(roomX, roomY);
+		enterRoom(roomX, roomY);
 	}
 	return door;
 }
@@ -174,7 +172,7 @@ function newEastDoor(y)
 	{
 		player.x = 0; //move to west wall
 		roomX++;
-		generateRoom(roomX, roomY);
+		enterRoom(roomX, roomY);
 	}
 	return door;
 }
@@ -193,38 +191,35 @@ function newWestDoor(y)
 	{
 		player.x = roomW - player.width; //move to east wall
 		roomX--;
-		generateRoom(roomX, roomY);
+		enterRoom(roomX, roomY);
 	}
 	return door;
 }
 
 
 //rooms
-function Room(xx, yy)
-{
-	this.doors = {north: null, east: null, south: null, west: null};
-	this.color = '#'+ Math.random().toString(16).substr(2,6);
-	this.x = xx;
-	this.y = yy;
-	this.draw = function()
-	{
-		//draw background
-		drawGameWin.fillStyle = this.color;
-		drawGameWin.fillRect(0, 0, 600, 600);
-
-		for (let direction in this.doors)
-		{
-			let door = this.doors[direction];
-			if (door != null)
-			{
-				door.draw();
+class Room {
+	constructor(xx, yy) {
+		this.doors = { north: null, east: null, south: null, west: null };
+		this.color = '#' + Math.random().toString(16).substr(2, 6);
+		this.x = xx;
+		this.y = yy;
+		this.draw = function () {
+			//draw background
+			drawGameWin.fillStyle = this.color;
+			drawGameWin.fillRect(0, 0, 600, 600);
+			for (let direction in this.doors) {
+				let door = this.doors[direction];
+				if (door != null) {
+					door.draw();
+				}
 			}
-		}
-		drawGameWin.fillStyle = "black";
-		drawGameWin.fillText("X: " + (this.x - 10), 550, 550);
-		drawGameWin.fillText("Y: " + (this.y - 10), 550, 570);
+			drawGameWin.fillStyle = "black"; //TODO: make white if background too dark
+			drawGameWin.fillText("X: " + (this.x - 10), 550, 550);
+			drawGameWin.fillText("Y: " + (this.y - 10), 550, 570);
+		};
+		//TODO: move enterRoom() in here
 	}
-	//TODO: move generateRoom() in here
 }
 
 //world
@@ -248,7 +243,7 @@ start.doors.south = newSouthDoor(roomW/2 - 50);
 start.doors.west = newWestDoor(roomH/2 - 50);
 
 //generates a room by checking doors of adjacent rooms.
-function generateRoom(x, y)
+function enterRoom(x, y)
 {
 	if (world[x][y] != null)
 	{
