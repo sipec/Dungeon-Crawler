@@ -24,7 +24,12 @@ var player =
 	width: 40, height: 40,
 
 	name: "Jessie",
-	hitpoints: 10, attack: 10, speed: 10,
+	max_hitpoints: 7 + Math.floor(Math.random() * 6),
+	hitpoints: 7 + Math.floor(Math.random() * 6),
+	attack: 7 + Math.floor(Math.random() * 6),
+	speed: 7 + Math.floor(Math.random() * 6),
+	sanity: 7 + Math.floor(Math.random() * 6),
+	wisdom: 7 + Math.floor(Math.random() * 6),
 
 	//Movement stuff (-20 to center)
 	x: roomW/2 - 20,
@@ -34,7 +39,6 @@ var player =
 	movingSouth: false,
 	movingEast: false,
 	movingWest: false,
-
 	//moves players x/y
 	draw: function()
 	{
@@ -100,11 +104,13 @@ var player =
 		drawGameWin.fillStyle = "black";
 		drawGameWin.fillRect(10, 10, 200, 10);
 		drawGameWin.fillStyle = "red";
-		drawGameWin.fillRect(10, 10, player.hitpoints * 200 / 10, 10);
+		drawGameWin.fillRect(10, 10, player.hitpoints * 200 / player.max_hitpoints, 10);
 		drawGameWin.font= "20px Arial";
 		drawGameWin.fillStyle = "black";
 		drawGameWin.fillText("Attack " + player.attack, 10, 40);
 		drawGameWin.fillText("Speed " + player.speed, 10, 65);
+		drawGameWin.fillText("Wisdom " + player.wisdom, 10, 90);
+		drawGameWin.fillText("Knowledge " + player.sanity, 10, 115);
 	}
 };
 
@@ -193,9 +199,11 @@ function newWestDoor(y)
 
 
 //rooms
-function Room()
+function Room(xx, yy)
 {
 	this.doors = {north: null, east: null, south: null, west: null};
+	this.x = xx;
+	this.y = yy;
 	this.draw = function()
 	{
 		//draw background
@@ -210,6 +218,9 @@ function Room()
 				door.draw();
 			}
 		}
+		drawGameWin.fillStyle = "black";
+		drawGameWin.fillText("X: " + (this.x - 10), 550, 550);
+		drawGameWin.fillText("Y: " + (this.y - 10), 550, 570);
 	}
 
 
@@ -231,7 +242,7 @@ for (i = 0; i < maxX; i++)
 var roomX = Math.floor(maxX/2);
 var roomY = Math.floor(maxY/2);
 
-var start = world[roomX][roomY] = new Room();
+var start = world[roomX][roomY] = new Room(10,10);
 start.doors.north = newNorthDoor(roomW/2 - 50);
 start.doors.east = newEastDoor(roomH/2 - 50);
 start.doors.south = newSouthDoor(roomW/2 - 50);
@@ -247,7 +258,7 @@ function generateRoom(x, y)
 		return false;
 	}
 
-	var newRoom = new Room();
+	var newRoom = new Room(x, y);
 	var newDoors = newRoom.doors;
 
 	//north
@@ -361,7 +372,6 @@ function onUp(event)
 			break;
 	}
 }
-
 
 
 function updateImage()
