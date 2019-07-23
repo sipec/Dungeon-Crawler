@@ -1,3 +1,4 @@
+"use strict";
 //centering game window
 var pageW = window.innerWidth; //webpage width
 var pageH = window.innerHeight; //webpage height
@@ -61,7 +62,7 @@ var player =
 		if( player.y < 0 ) //top wall
 		{
 			player.y = 0; //make sure player doesn't go past
-			var nDoor = roomDoors.north;
+			let nDoor = roomDoors.north;
 			if ( nDoor != null && nDoor.inDoor())
 			{
 				nDoor.goThru();
@@ -70,7 +71,7 @@ var player =
 		if( player.x + player.width > roomW ) //right wall
 		{
 			player.x = roomW - player.width;
-			var eDoor = roomDoors.east;
+			let eDoor = roomDoors.east;
 			if (eDoor != null && eDoor.inDoor())
 			{
 				eDoor.goThru();
@@ -79,7 +80,7 @@ var player =
 		if( player.y + player.height > roomH ) //bottom wall
 		{
 			player.y = roomH - player.height;
-			var sDoor = roomDoors.south;
+			let sDoor = roomDoors.south;
 			if (sDoor != null && sDoor.inDoor())
 			{
 				sDoor.goThru();
@@ -88,7 +89,7 @@ var player =
 		if( player.x < 0 ) //left wall
 		{
 			player.x = 0;
-			wDoor = roomDoors.west;
+			let wDoor = roomDoors.west;
 			if (wDoor != null && wDoor.inDoor())
 			{
 				wDoor.goThru();
@@ -196,24 +197,22 @@ function newWestDoor(y)
 function Room()
 {
 	this.doors = {north: null, east: null, south: null, west: null};
+	this.color = '#'+ Math.random().toString(16).substr(2,6);
 	this.draw = function()
 	{
 		//draw background
-		drawGameWin.fillStyle = "grey";
+		drawGameWin.fillStyle = this.color;
 		drawGameWin.fillRect(0, 0, 600, 600);
 
-		for (direction in this.doors)
+		for (let direction in this.doors)
 		{
-			door = this.doors[direction];
+			let door = this.doors[direction];
 			if (door != null)
 			{
 				door.draw();
 			}
 		}
 	}
-
-
-
 	//TODO: move generateRoom() in here
 }
 
@@ -222,7 +221,7 @@ var maxX = 20;
 var maxY = 20;
 
 var world = new Array(maxX);
-for (i = 0; i < maxX; i++)
+for (let i = 0; i < maxX; i++)
 {
 	world[i] = new Array(maxY);
 }
